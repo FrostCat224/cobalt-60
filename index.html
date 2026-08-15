@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cobalt-60</title>
+</head>
+
+<body bgcolor="#add8e6">
+
+<center>
+
+    <h1>Cobalt-60</h1>
+  
+
+    <hr width="70%">
+
+    <h2>Enter code</h2>
+
+    <input type="text" id="codeInput" placeholder="Enter code">
+    <button onclick="submitCode()">Submit</button>
+
+    <p id="result"></p>
+
+    <hr width="70%">
+
+    <h2>Completed Puzzles</h2>
+
+    <table border="1" cellpadding="8" id="completedTable">
+        <tr>
+            <th>#</th>
+            <th>Puzzle</th>
+        </tr>
+    </table>
+
+    <p id="completedCount">0 puzzles completed.</p>
+
+    <hr width="70%">
+
+    <h2>Hints</h2>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>#</th>
+            <th>Puzzle</th>
+            <th>Hint</th>
+
+          <th>1</th>
+            <th>Youre clever, arent you?</th>
+            <th>Literally</th>
+        </tr>
+
+        
+    </table>
+
+    <br>
+
+    <hr width="70%">
+
+    <p><small>Cobalt-60</small></p>
+
+</center>
+
+<script>
+
+const puzzles = {
+    "Code": {
+        number: "1",
+        name: "Youre clever, arent you?"
+    }
+  // dont leave a comma at the end
+};
+
+
+let completed = JSON.parse(
+    localStorage.getItem("cobalt60_completed") || "[]"
+);
+
+function submitCode() {
+
+    const input = document.getElementById("codeInput");
+    const result = document.getElementById("result");
+
+    const code = input.value.trim().toUpperCase();
+
+    if (puzzles[code]) {
+
+        const puzzle = puzzles[code];
+
+        if (completed.includes(puzzle.number)) {
+
+            result.innerHTML =
+                "<font color='orange'><b>You already completed this puzzle!</b></font>";
+
+        } else {
+
+            completed.push(puzzle.number);
+
+            localStorage.setItem(
+                "cobalt60_completed",
+                JSON.stringify(completed)
+            );
+
+            result.innerHTML =
+                "<font color='green'><b>Correct! Puzzle " +
+                puzzle.number +
+                " unlocked.</b></font>";
+
+            updateCompleted();
+        }
+
+    } else {
+
+        result.innerHTML =
+            "<font color='red'><b>Incorrect code.</b></font>";
+
+    }
+
+    input.value = "";
+}
+
+
+function updateCompleted() {
+
+    const table = document.getElementById("completedTable");
+
+    
+    table.innerHTML = `
+        <tr>
+            <th>#</th>
+            <th>Puzzle</th>
+        </tr>
+    `;
+
+    const allPuzzles = Object.values(puzzles);
+
+    completed.sort((a, b) => Number(a) - Number(b));
+
+    completed.forEach(number => {
+
+        const puzzle = allPuzzles.find(
+            p => p.number === number
+        );
+
+        if (puzzle) {
+
+            const row = table.insertRow();
+
+            row.insertCell(0).innerHTML = puzzle.number;
+            row.insertCell(1).innerHTML = puzzle.name;
+        }
+    });
+
+    document.getElementById("completedCount").innerHTML =
+        completed.length +
+        " puzzle" +
+        (completed.length === 1 ? "" : "s") +
+        " completed.";
+}
+
+
+document.getElementById("codeInput").addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+            submitCode();
+        }
+
+    }
+);
+
+
+updateCompleted();
+
+</script>
+
+</body>
+</html>
